@@ -21,6 +21,7 @@ let selectionIndicatorCircle = null; // Cercle visuel pour le nœud sélectionn�
 let currentSidebarSuccessData = null; // Données du succès actuellement affiché dans la sidebar
 
 // --- Constants ---
+const SITE_VERSION = "(1.1)"; // Version actuelle du site pour la logique de réinitialisation
 // Colors
 const COLOR_NODE_START = "#D0BFFF"; // Couleur du nœud d'origine (Lavande Néon Clair)
 const COLOR_NODE_UNLOCKED = "#fff"; // Couleur des nœuds déverrouillés (Blanc)
@@ -90,9 +91,27 @@ const sidebarUnlockButton = document.getElementById("sidebar-unlock-button");
 // II. GESTION DES DONNÉES & STOCKAGE
 // ==========================================================================
 
+/**
+ * Vérifie la version du site et réinitialise la progression si une mise à jour est détectée.
+ */
+function checkVersionAndReset() {
+    const lastVisitedVersion = localStorage.getItem("lastVisitedVersion");
+
+    if (lastVisitedVersion !== SITE_VERSION) {
+        console.log(`Mise à jour détectée (Ancienne version: ${lastVisitedVersion}, Nouvelle version: ${SITE_VERSION}). Réinitialisation de la progression.`);
+        alert("Bienvenue dans la nouvelle version du Platine de la Vie !\n\nPour assurer la compatibilité avec les dernières améliorations et changements, votre progression a été réinitialisée.\n\nNous espérons que vous apprécierez les nouveautés !");
+        performReset(); // Réinitialise la progression
+        localStorage.setItem("lastVisitedVersion", SITE_VERSION); // Met à jour la version visitée
+    }
+}
+
+// Appeler cette fonction AVANT de charger la progression sauvegardée.
+checkVersionAndReset();
+
 // Load saved progress from localStorage
 const savedProgress = JSON.parse(localStorage.getItem("successProgress")) || [];
 successes.forEach(s => { s.unlocked = savedProgress.includes(s.id); });
+level = parseInt(localStorage.getItem("level")) || 0; // S'assurer de recharger le niveau après un éventuel reset
 
 // Map pour un accès rapide aux succès par leur ID
 const successMap = new Map(successes.map(s => [s.id, s]));
